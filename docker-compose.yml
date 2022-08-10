@@ -1,0 +1,64 @@
+version: '2'
+
+volumes:
+  solidity_compilers: {}
+  vyper_compilers: {}
+  brownie: {}
+  cache: {}
+  postgres_data: {}
+
+x-common-volumes: &common-volumes
+  - solidity_compilers:/root/.solcx
+  - vyper_compilers:/root/.vvm
+  - brownie:/root/.brownie
+  - cache:/app/cache
+
+x-common-envs: &common-envs
+  - BROWNIE_NETWORK_ID=mainnet
+  - WEB3_INFURA_PROJECT_ID
+  - ETHERSCAN_TOKEN
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  token_exporter:
+    build:
+      context: .
+      dockerfile: services/exporters/Dockerfile
+    command: python export_tokens.py
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment: *common-envs
+    volumes: *common-volumes
+
+  price_exporter:
+    build:
+      context: .
+      dockerfile: services/exporters/Dockerfile
+    command: python export_prices.py
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment: *common-envs
+    volumes: *common-volumes
+
+  datapane_reports:
+    build:
+      context: .
+      dockerfile: services/reporters/Dockerfile
+      args:
+        - DATAPANE_TOKEN
+    restart: on-failure
+    depends_on:
+      - postgres

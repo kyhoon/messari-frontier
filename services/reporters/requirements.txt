@@ -1,0 +1,5 @@
+datapane==0.14.0
+pandas==1.4.2
+sqlalchemy==1.4.35
+sqlmodel==0.0.6
+psycopg2-binary==2.9.3

@@ -1,0 +1,8 @@
+gql==3.4.0
+requests-toolbelt==0.9.1
+pandas==1.4.2
+ypricemagic>=1.1.1.dev0
+sqlalchemy==1.4.35
+sqlmodel==0.0.6
+psycopg2-binary==2.9.3
+rich==12.5.1
