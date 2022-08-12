@@ -66,7 +66,11 @@ def main():
                     continue
 
                 for snapshot in snapshots:
-                    if session.get(PoolSnapshot, snapshot.id) is not None:
+                    # pool may disappear due to the token exporter
+                    if (
+                        session.get(PoolSnapshot, snapshot.id) is not None
+                        or session.get(Pool, pool.id) is None
+                    ):
                         continue
                     session.add(PoolSnapshot(**snapshot.__dict__, pool=pool))
                 session.commit()
@@ -88,7 +92,7 @@ def main():
 
         # fetch prices
         logger.info("Fetching prices of tokens")
-        for block in track(blocks, description="Prices"):
+        for block in track(blocks, description="prices"):
             try:
                 prices = get_prices(addresses, block)
             except Exception as e:

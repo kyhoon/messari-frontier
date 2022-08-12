@@ -14,8 +14,7 @@ x-common-volumes: &common-volumes
   - cache:/app/cache
 
 x-common-envs: &common-envs
-  - BROWNIE_NETWORK_ID=mainnet
-  - WEB3_INFURA_PROJECT_ID
+  - WEB3_PROVIDER
   - ETHERSCAN_TOKEN
 
 services:

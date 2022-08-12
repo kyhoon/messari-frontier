@@ -6,6 +6,7 @@ from brownie.network.state import Chain
 
 os.environ["BROWNIE_NETWORK_ID"] = "mainnet"
 brownie._config.CONFIG.settings["autofetch_sources"] = True
+brownie._config.CONFIG.networks["mainnet"]["host"] = os.environ["WEB3_PROVIDER"]
 
 from ypricemagic.magic import magic
 
