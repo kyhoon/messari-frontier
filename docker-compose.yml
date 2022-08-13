@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: services/reporters/Dockerfile
       args:
-        - DATAPANE_TOKEN
+        DATAPANE_TOKEN: ${DATAPANE_TOKEN}
     restart: on-failure
     depends_on:
       - postgres

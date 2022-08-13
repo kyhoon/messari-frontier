@@ -131,4 +131,4 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 if __name__ == "__main__":
     dp.login(token=os.environ["DATAPANE_TOKEN"])
-    report.upload(name="DeFi Frontier")
+    report.upload(name="DeFi Frontier", publicly_visible=True)
