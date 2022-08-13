@@ -86,10 +86,10 @@ def daily_returns():
     # load pool data
     pool_info, pool_data = load_pool_data()
 
-    # resample daily data for the last 90 days
+    # resample daily data for the last 120 days
     pool_data = pd.DataFrame(pool_data).T
     pool_data.index = pd.to_datetime(pool_data.index, unit="s")
-    pool_data = pool_data.resample("1D").last().iloc[-90:]
+    pool_data = pool_data.resample("1D").last().iloc[-120:]
 
     pools, hodl, apy = [], [], []
     for idx in range(0, len(pool_info)):
@@ -121,7 +121,7 @@ def daily_returns():
 
 
 def pool_stats(pools, returns):
-    T = 365  # yearly stats
+    T = 30  # monthly stats
     mu = (1 + returns).prod() ** (T / len(returns)) - 1
     cov = returns.cov() * T
     sigma = np.sqrt(np.diag(cov))
@@ -167,7 +167,8 @@ def efficient_frontier(mu, cov, num_samples=100, threshold=0.1):
         return -result.fun, result.x
 
     sigma = np.sqrt(np.diag(cov))
-    xs = np.linspace(sigma.min(), sigma.max(), num_samples)
+    sigma_min = min_volatility_portfolio(mu, cov)[1][0]
+    xs = np.linspace(sigma_min, sigma.max(), num_samples)
     ys, nonzero = [], set({})
     last_y = 0.0
     for idx in range(num_samples):

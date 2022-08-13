@@ -4,9 +4,17 @@ import datapane as dp
 from assets import (
     chart_frontier,
     frontier_data,
-    minvolatility_data,
-    riskparity_data,
+    min_volatility_data,
+    risk_parity_data,
     tangency_data,
+    uniform_return,
+    tangency_return,
+    min_volatility_return,
+    risk_parity_return,
+    uniform_mdd,
+    tangency_mdd,
+    min_volatility_mdd,
+    risk_parity_mdd,
 )
 
 report = dp.Report(
@@ -37,14 +45,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
         dp.Group(
             dp.Text(
                 """
-### Assets on Frontier
+### Assets on the Frontier
 Here we list only the assets that contribute significantly to the frontier.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 """
             ),
             dp.DataTable(frontier_data),
-            label="Assets on Frontier",
+            label="Assets on the Frontier",
         ),
         columns=2,
     ),
@@ -56,20 +64,45 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 """
     ),
     dp.Text("### Backtest Results"),
+    dp.Text("#### Monthly Return"),
     dp.Group(
         dp.BigNumber(
+            heading="Uniform Portfolio",
+            value=f"{round(uniform_return * 100, 2)}%",
+        ),
+        dp.BigNumber(
             heading="Tangency Portfolio",
-            value=0.0,
+            value=f"{round(tangency_return * 100, 2)}%",
         ),
         dp.BigNumber(
             heading="Min Volatility Portfolio",
-            value=0.0,
+            value=f"{round(min_volatility_return * 100, 2)}%",
         ),
         dp.BigNumber(
             heading="Risk Parity Portfolio",
-            value=0.0,
+            value=f"{round(risk_parity_return * 100, 2)}%",
         ),
-        columns=3,
+        columns=4,
+    ),
+    dp.Text("#### Maximum Drawdown"),
+    dp.Group(
+        dp.BigNumber(
+            heading="Uniform Portfolio",
+            value=f"{round(uniform_mdd * 100, 2)}%",
+        ),
+        dp.BigNumber(
+            heading="Tangency Portfolio",
+            value=f"{round(tangency_mdd * 100, 2)}%",
+        ),
+        dp.BigNumber(
+            heading="Min Volatility Portfolio",
+            value=f"{round(min_volatility_mdd * 100, 2)}%",
+        ),
+        dp.BigNumber(
+            heading="Risk Parity Portfolio",
+            value=f"{round(risk_parity_mdd * 100, 2)}%",
+        ),
+        columns=4,
     ),
     dp.Text(
         """
@@ -82,8 +115,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
     dp.Select(
         blocks=[
             dp.DataTable(tangency_data, label="Tangency Portfolio"),
-            dp.DataTable(minvolatility_data, label="Min Volatility Portfolio"),
-            dp.DataTable(riskparity_data, label="Risk Parity Portfolio"),
+            dp.DataTable(min_volatility_data, label="Min Volatility Portfolio"),
+            dp.DataTable(risk_parity_data, label="Risk Parity Portfolio"),
         ]
     ),
     dp.Text(
