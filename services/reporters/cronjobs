@@ -1,2 +1,2 @@
 # datapane reports
-* * * * * /usr/local/bin/python /app/reports/frontier/main.py >> /var/log/cron.log 2>&1
+0 * * * * /usr/local/bin/python /app/reports/frontier/main.py >> /var/log/cron.log 2>&1

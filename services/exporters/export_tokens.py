@@ -59,16 +59,12 @@ def main():
                     logger.debug(e)
                     continue
 
-                # remove pool and tokens if price does not exist
+                # remove pool if price does not exist
                 if any(price is None for price in prices):
                     with Session(engine) as session:
                         _pool = session.get(Pool, pool.id)
                         if _pool is not None:
                             session.delete(_pool)
-                        for address in addresses:
-                            _token = session.get(Token, address)
-                            if _token is not None:
-                                session.delete(_token)
                         session.commit()
                     continue
 

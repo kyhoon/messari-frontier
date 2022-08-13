@@ -22,19 +22,24 @@ class Pool(SQLModel, table=True):
     tokens: list["Token"] = Relationship(
         back_populates="pools",
         link_model=PoolTokenLink,
-        sa_relationship_kwargs={"cascade": "all, delete"},
     )
-    snapshots: list["PoolSnapshot"] = Relationship(back_populates="pool")
+    snapshots: list["PoolSnapshot"] = Relationship(
+        back_populates="pool",
+    )
 
 
 class PoolSnapshot(SQLModel, table=True):
     id: str = Field(primary_key=True)
     blockNumber: int
+    timestamp: int
     totalValueLocked: float
     cumulativeReward: float
 
     pool_id: str = Field(default=None, foreign_key="pool.id")
-    pool: Pool = Relationship(back_populates="snapshots")
+    pool: Pool = Relationship(
+        back_populates="snapshots",
+        sa_relationship_kwargs={"cascade": "all, delete"},
+    )
 
 
 class Token(SQLModel, table=True):
@@ -45,15 +50,20 @@ class Token(SQLModel, table=True):
     pools: list["Pool"] = Relationship(
         back_populates="tokens",
         link_model=PoolTokenLink,
-        sa_relationship_kwargs={"cascade": "all, delete"},
     )
-    prices: list["TokenSnapshot"] = Relationship(back_populates="token")
+    snapshots: list["TokenSnapshot"] = Relationship(
+        back_populates="token",
+    )
 
 
 class TokenSnapshot(SQLModel, table=True):
     id: str = Field(primary_key=True)
     blockNumber: int
-    price: float
+    timestamp: int
+    price: Optional[float]
 
     token_id: str = Field(default=None, foreign_key="token.id")
-    token: Token = Relationship(back_populates="prices")
+    token: Token = Relationship(
+        back_populates="snapshots",
+        sa_relationship_kwargs={"cascade": "all, delete"},
+    )

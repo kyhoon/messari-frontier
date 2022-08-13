@@ -47,8 +47,8 @@ def main():
 
         # create snapshots for blocks closest to midnight in UTC
         dt = datetime.fromtimestamp(block.timestamp)
-        dt = datetime.combine(dt, datetime.min.time()) - timedelta(days=59)
-        blocks = [datetime_to_block(dt) for dt in pd.date_range(dt, periods=60)]
+        dt = datetime.combine(dt.date(), datetime.min.time()) - timedelta(days=121)
+        blocks = [datetime_to_block(dt) for dt in pd.date_range(dt, periods=120)]
 
         # update pool data
         logger.info("Fetching pools from database")
@@ -101,16 +101,19 @@ def main():
             with Session(engine) as session:
                 for address, price in zip(addresses, prices):
                     price_id = address + "_" + str(block)
-                    if session.get(TokenSnapshot, price_id) is not None:
-                        continue
-                    session.add(
-                        TokenSnapshot(
-                            id=price_id,
-                            blockNumber=block,
-                            price=price,
-                            token=session.get(Token, address),
+                    snapshot = session.get(TokenSnapshot, price_id)
+                    if snapshot is not None:
+                        snapshot.price = price
+                    else:
+                        session.add(
+                            TokenSnapshot(
+                                id=price_id,
+                                blockNumber=block,
+                                timestamp=chain[block].timestamp,
+                                price=price,
+                                token=session.get(Token, address),
+                            )
                         )
-                    )
                 session.commit()
 
 

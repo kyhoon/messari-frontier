@@ -59,8 +59,30 @@ def query_apy(params: QueryAPYParams, skip_id=""):
             ) {{
                 id
                 blockNumber
+                timestamp
                 totalValueLockedUSD
                 cumulativeSupplySideRevenueUSD
+            }}
+        }}
+        """
+    )
+
+
+@dataclass
+class QueryTokenWeightsParams:
+    pool: str
+    pool_id: str
+    token_weights: str
+
+
+def query_token_weights(params: QueryTokenWeightsParams):
+    return gql(
+        f"""
+        {{
+            {params.pool} (
+                id: "{params.pool_id}"
+            ) {{
+                {params.token_weights}
             }}
         }}
         """

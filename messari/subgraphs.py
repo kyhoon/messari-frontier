@@ -8,7 +8,14 @@ from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.requests import log as requests_logger
 from graphql.error.graphql_error import GraphQLError
 
-from messari.queries import QueryAPYParams, QueryPoolsParams, query_apy, query_pools
+from messari.queries import (
+    QueryAPYParams,
+    QueryPoolsParams,
+    QueryTokenWeightsParams,
+    query_apy,
+    query_pools,
+    query_token_weights,
+)
 
 requests_logger.setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -32,6 +39,7 @@ class Pool:
 class PoolSnapshot:
     id: str
     blockNumber: int
+    timestamp: int
     totalValueLocked: float
     cumulativeReward: float
 
@@ -155,10 +163,11 @@ class Subgraph:
         out = pd.DataFrame(
             None,
             index=range(blocks[0], blocks[-1] + 1),
-            columns=["totalValueLocked", "cumulativeReward"],
+            columns=["timestamp", "totalValueLocked", "cumulativeReward"],
         )
         for snapshot in data:
             out.loc[int(snapshot["blockNumber"])] = [
+                int(snapshot["timestamp"]),
                 float(snapshot["totalValueLockedUSD"]),
                 float(snapshot["cumulativeSupplySideRevenueUSD"]),
             ]
@@ -168,11 +177,32 @@ class Subgraph:
             PoolSnapshot(
                 id=pool_id + "_" + str(idx),
                 blockNumber=idx,
+                timestamp=snapshot.timestamp,
                 totalValueLocked=snapshot.totalValueLocked,
                 cumulativeReward=snapshot.cumulativeReward,
             )
             for idx, snapshot in out.loc[blocks].iterrows()
         ]
+
+    def token_weights(self, pool_id) -> list[float]:
+        # create query mappings according to the schema type
+        if self.schema_type == "DEX AMM":
+            params = QueryTokenWeightsParams(
+                "liquidityPool", pool_id, "inputTokenWeights"
+            )
+        else:
+            logger.error(f"Query for schema type {self.schema_type} is not implemented")
+            raise NotImplementedError
+
+        # fetch subgraph data
+        self.__init_client()
+        try:
+            response = self.client.execute(query_token_weights(params))
+        except (TransportQueryError, TransportServerError, GraphQLError) as e:
+            logger.error(e)
+            return []
+        key = list(response.keys())[0]
+        return list(response[key].values())[0]
 
 
 subgraphs = [
